@@ -67,8 +67,8 @@ module "kube-hetzner" {
 
   agent_nodepools = [
     {
-      name            = "agent-small",
-      server_type     = "cx22",
+      name            = "agent-cx33-fsn",
+      server_type     = "cx33",
       location        = "fsn1",
       labels          = [],
       taints          = [],
@@ -77,9 +77,19 @@ module "kube-hetzner" {
       backups         = true
     },
     {
-      name            = "agent-large",
-      server_type     = "cx32",
+      name            = "agent-cx33-nbg",
+      server_type     = "cx33",
       location        = "nbg1",
+      labels          = [],
+      taints          = [],
+      count           = 1
+      placement_group = "default"
+      backups         = true
+    },
+    {
+      name            = "agent-cx33-hel",
+      server_type     = "cx33",
+      location        = "hel1",
       labels          = [],
       taints          = [],
       count           = 1
