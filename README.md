@@ -53,8 +53,8 @@ Below are some configurations in `kube.tf` that you may want to change.
 
 ```terraform
 cluster_name = "hcloud-cluster"
-ssh_public_key  = file("~/.ssh/id_ed25519.pub")
-ssh_private_key = file("~/.ssh/id_ed25519")
+ssh_public_key  = file("~/.ssh/hetzner_kube.pub")
+ssh_private_key = file("~/.ssh/hetzner_kube")
 network_region = "eu-central"
 load_balancer_type                  = "lb11"
 load_balancer_location              = "fsn1"
@@ -86,6 +86,7 @@ firewall_ssh_source = ["1.2.3.4/32"]
 disable_selinux = false
 block_icmp_ping_in = false
 enable_cert_manager = true
+enable_wireguard = true
 dns_servers = [
   "1.1.1.1",
   "8.8.8.8",
@@ -135,4 +136,4 @@ Now you're ready to deploy your cluster:
    terraform output --raw kubeconfig > cluster_kubeconfig.yaml
    ```
 
-The deployment will take around 5 minutes to complete. Once finished, you should see a green output confirming a successful deployment.
+The deployment will take around 10 minutes to complete. Once finished, you should see a green output confirming a successful deployment.

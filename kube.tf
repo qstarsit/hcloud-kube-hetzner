@@ -13,8 +13,8 @@ module "kube-hetzner" {
   }
   hcloud_token    = var.hcloud_token != "" ? var.hcloud_token : local.hcloud_token
   source          = "kube-hetzner/kube-hetzner/hcloud"
-  ssh_public_key  = file("~/.ssh/id_ed25519.pub")
-  ssh_private_key = file("~/.ssh/id_ed25519")
+  ssh_public_key  = file("~/.ssh/hetzner_kube.pub")
+  ssh_private_key = file("~/.ssh/hetzner_kube")
 
   # You can add additional SSH public Keys to grant other team members root access to your cluster nodes.
   # ssh_additional_public_keys = []
