@@ -26,7 +26,7 @@ jobs:
       - name: Terraform init (no backend)
         run: terraform init -backend=false -upgrade
 
-      - uses: terraform-linters/setup-tflint@v4
+      - uses: terraform-linters/setup-tflint@v6
         with:
           tflint_version: latest
 
