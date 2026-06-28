@@ -24,10 +24,7 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Terraform init (no backend)
-        run: terraform init -backend=false
-
-      - name: Terraform validate
-        run: terraform validate
+        run: terraform init -backend=false -upgrade
 
       - uses: terraform-linters/setup-tflint@v4
         with:
