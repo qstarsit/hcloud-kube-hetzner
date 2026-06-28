@@ -13,8 +13,17 @@ module "kube-hetzner" {
   }
   hcloud_token    = var.hcloud_token != "" ? var.hcloud_token : local.hcloud_token
   source          = "kube-hetzner/kube-hetzner/hcloud"
+  version         = "2.20.0"
   ssh_public_key  = file("~/.ssh/hetzner_kube.pub")
   ssh_private_key = file("~/.ssh/hetzner_kube")
+
+  # k3s version. Pin a specific release for reproducibility; otherwise track a channel.
+  # `install_k3s_version` supersedes `initial_k3s_channel` when set.
+  install_k3s_version = "v1.36.2+k3s1"
+  # initial_k3s_channel = "v1.36"
+
+  automatically_upgrade_k3s = true
+  automatically_upgrade_os  = true
 
   # You can add additional SSH public Keys to grant other team members root access to your cluster nodes.
   # ssh_additional_public_keys = []
@@ -285,7 +294,7 @@ provider "hcloud" {
 }
 
 terraform {
-  required_version = ">= 1.5.0"
+  required_version = ">= 1.10.1"
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
