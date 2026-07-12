@@ -13,7 +13,7 @@ module "kube-hetzner" {
   }
   hcloud_token    = var.hcloud_token != "" ? var.hcloud_token : local.hcloud_token
   source          = "kube-hetzner/kube-hetzner/hcloud"
-  version         = "2.20.0"
+  version         = "3.0.0"
   ssh_public_key  = file("~/.ssh/hetzner_kube.pub")
   ssh_private_key = file("~/.ssh/hetzner_kube")
 
