@@ -18,12 +18,12 @@ module "kube-hetzner" {
   ssh_private_key = file("~/.ssh/hetzner_kube")
 
   # k3s version. Pin a specific release for reproducibility; otherwise track a channel.
-  # `install_k3s_version` supersedes `initial_k3s_channel` when set.
-  install_k3s_version = "v1.36.2+k3s1"
-  # initial_k3s_channel = "v1.36"
+  # `k3s_version` supersedes `k3s_channel` when set. (v3 default channel is "stable".)
+  k3s_version = "v1.36.2+k3s1"
+  # k3s_channel = "stable"
 
-  automatically_upgrade_k3s = true
-  automatically_upgrade_os  = true
+  automatically_upgrade_kubernetes = true
+  automatically_upgrade_os         = true
 
   # You can add additional SSH public Keys to grant other team members root access to your cluster nodes.
   # ssh_additional_public_keys = []
@@ -44,8 +44,8 @@ module "kube-hetzner" {
       placement_group = "default"
       backups         = true
 
-      # disable_ipv4 = true
-      # disable_ipv6 = true
+      # enable_public_ipv4 = false
+      # enable_public_ipv6 = false
     },
     {
       name            = "control-plane-nbg1",
@@ -57,8 +57,8 @@ module "kube-hetzner" {
       placement_group = "default"
       backups         = true
 
-      # disable_ipv4 = true
-      # disable_ipv6 = true
+      # enable_public_ipv4 = false
+      # enable_public_ipv6 = false
     },
     {
       name            = "control-plane-hel1",
@@ -69,8 +69,8 @@ module "kube-hetzner" {
       count           = 1
       placement_group = "default"
       backups         = true
-      # disable_ipv4 = true
-      # disable_ipv6 = true
+      # enable_public_ipv4 = false
+      # enable_public_ipv6 = false
     }
   ]
 
@@ -130,7 +130,7 @@ module "kube-hetzner" {
 
   # FYI, Hetzner says "Traffic between cloud servers inside a Network is private and isolated, but not automatically encrypted." https://docs.hetzner.com/cloud/networks/faq/#is-traffic-inside-hetzner-cloud-networks-encrypted
   # Just note, that if Cilium with cilium_values, the responsibility of enabling of disabling Wireguard falls on you.
-  enable_wireguard = true
+  enable_cni_wireguard_encryption = true
 
   # * LB location and type, the latter will depend on how much load you want it to handle, see https://www.hetzner.com/cloud/load-balancer
   load_balancer_type                  = "lb11"
@@ -153,7 +153,6 @@ module "kube-hetzner" {
 
   # To enable Hetzner Storage Box support, you can enable csi-driver-smb, default is "false".
   enable_csi_driver_smb = true
-  hetzner_ccm_use_helm  = true
 
   # If you want to enable the Nginx (https://kubernetes.github.io/ingress-nginx/) or HAProxy ingress controller instead of Traefik, you can set this to "nginx" or "haproxy".
   ingress_controller       = "traefik"
@@ -193,7 +192,7 @@ module "kube-hetzner" {
   # Allowed values: null (disable Kube API rule entirely) or a list of allowed networks with CIDR notation.
   # For maximum security, it's best to disable it completely by setting it to null. However, in that case, to get access to the kube api,
   # you would have to connect to any control plane node via SSH, as you can run kubectl from within these.
-  # Please be advised that this setting has no effect on the load balancer when the use_control_plane_lb variable is set to true. This is
+  # Please be advised that this setting has no effect on the load balancer when the enable_control_plane_load_balancer variable is set to true. This is
   # because firewall rules cannot be applied to load balancers yet.
   firewall_kube_api_source = null
 
@@ -205,7 +204,7 @@ module "kube-hetzner" {
   # By default, SELinux is enabled in enforcing mode on all nodes. For container-specific SELinux issues,
   # consider using the pre-installed 'udica' tool to create custom, targeted SELinux policies instead of
   # disabling SELinux globally. See the "Fix SELinux issues with udica" example in the README for details.
-  disable_selinux = false
+  enable_selinux = true
 
   # Adding extra firewall rules, like opening a port
   # More info on the format here https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs/resources/firewall
@@ -232,7 +231,7 @@ module "kube-hetzner" {
   cilium_hubble_metrics_enabled = [
     "policy:sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace"
   ]
-  block_icmp_ping_in  = false
+  allow_inbound_icmp  = true
   enable_cert_manager = true
 
   # IP Addresses to use for the DNS Servers, the defaults are the ones provided by Hetzner https://docs.hetzner.com/dns-console/dns/general/recursive-name-servers/.
@@ -244,8 +243,8 @@ module "kube-hetzner" {
     "2606:4700:4700::1111",
   ]
 
-  use_control_plane_lb  = true
-  control_plane_lb_type = "lb11"
+  enable_control_plane_load_balancer = true
+  control_plane_load_balancer_type   = "lb11"
 
   # Let's say you are not using the control plane LB solution above, and still want to have one hostname point to all your control-plane nodes.
   # You could create multiple A records of to let's say cp.cluster.my.org pointing to all of your control-plane nodes ips.
@@ -257,10 +256,10 @@ module "kube-hetzner" {
   # kubeconfig.
   # kubeconfig_server_address = "cp.cluster.my.org"
 
-  # lb_hostname Configuration:
+  # load_balancer_hostname Configuration:
   #
   # Purpose:
-  # The lb_hostname setting optimizes communication between services within the Kubernetes cluster
+  # The load_balancer_hostname setting optimizes communication between services within the Kubernetes cluster
   # when they use domain names instead of direct service names. By associating a domain name directly
   # with the Hetzner Load Balancer, this setting can help reduce potential communication delays.
   #
@@ -269,7 +268,7 @@ module "kube-hetzner" {
   # to an external Load Balancer, there can be a slowdown in communication.
   #
   # Guidance:
-  # - If your internal services use domain names pointing to an external LB, set lb_hostname to a domain
+  # - If your internal services use domain names pointing to an external LB, set load_balancer_hostname to a domain
   #   like `mycluster.domain.com`.
   # - Create an A record pointing `mycluster.domain.com` to your LB's IP.
   # - Create a CNAME record for `a.mycluster.domain.com` (or xyz.com) pointing to `mycluster.domain.com`.
@@ -283,7 +282,7 @@ module "kube-hetzner" {
   # For inter-namespace communication, use `.service_name` as per Kubernetes norms.
   #
   # Example:
-  # lb_hostname = "mycluster.domain.com"
+  # load_balancer_hostname = "mycluster.domain.com"
 
   create_kubeconfig = false
   export_values     = true
@@ -298,7 +297,7 @@ terraform {
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
-      version = ">= 1.51.0"
+      version = ">= 1.62.0"
     }
   }
 }
