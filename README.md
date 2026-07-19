@@ -1,4 +1,4 @@
-# Qstars Kube-Hetzner Starter
+# Kube-Hetzner Starter
 
 This project configuration is an addition to the blogpost [Cheap Self Hosted Kubernetes on Hetzner Cloud](https://blog.qstars.nl/posts/cheap-self-hosted-kubernetes-on-hetzner-cloud/)
 
